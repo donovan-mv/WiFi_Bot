@@ -1,0 +1,117 @@
+<!DCOTYPE html>
+
+<!-------------------------------- NOTE ----------------------------------------------------------------------------
+*This page is used for controlling the bot's speed as well as direction (use whichever parameters you require)
+*The 2 params are sent through a GET request to the server (enter server IP address as used in your ESP code)
+*A value of -1 for either parameter indicates that there is no change
+*When a certain direction is selected, the button gets disabled so that the same direction is not selected again
+*Value of 1, 2, 3, 4 is sent for dir param when Forward, Left, Right or Reverse is clicked respectively
+*The slider for speed automatically sends speed data after speed has been changed
+*Speed value is of 8-bit (0 to 255)
+*Note that I have tested it out using a local Python server and it works fine
+------------------------------------------------------------------------------------------------------------------->
+
+<html>
+<head>
+<meta lang="en" />
+<title> Send data to robot </title>
+<script type="text/javascript">
+    //set up variables
+    var xhttp = new XMLHttpRequest(); //javascript object used for sending HTTP requests
+    var i = 0; //used for numbering the requests
+    var mode = ""; //used to describe which update it was
+    xhttp.onreadystatechange = function () { //event listener
+        if (xhttp.readyState == 4) {
+            i ++;
+            document.getElementById("debug").innerHTML += "("+i+") "+mode+"update req sent <br />"; //for debugging purpose only
+        }
+    }
+    function forward() { //callback when forward button is pressed
+		//window.alert("Button1 was clicked");
+		document.getElementById("fo").disabled = true;
+		document.getElementById("ri").disabled = false;
+		document.getElementById("le").disabled = false;
+		document.getElementById("re").disabled = false;
+		mode = "Forward "; //only for debugging purpose
+		xhttp.open("get", "http://192.168.43.55/?dir=1&spd=-1", true); //open a connection to server
+		xhttp.send(); //send the request
+		//xhhtp.send("field1=1&field2=-1");
+	}
+
+	function left(){
+		//window.alert("Button2 was clicked");
+		document.getElementById("fo").disabled = false;
+		document.getElementById("le").disabled = true;
+		document.getElementById("ri").disabled = false;
+		document.getElementById("re").disabled = false;
+		mode = "Left ";
+		xhttp.open("get", "http://192.168.43.55/?dir=2&spd=-1", true);
+		xhttp.send();
+	}
+
+	function right(){
+		//window.alert("Button3 was clicked");
+		document.getElementById("fo").disabled = false;
+		document.getElementById("le").disabled = false;
+		document.getElementById("ri").disabled = true;
+		document.getElementById("re").disabled = false;
+		mode = "Right ";
+		xhttp.open("get", "http://192.168.43.55/?dir=3&spd=-1", true);
+		xhttp.send();
+	}
+
+	function rev() {
+	    //window.alert("Button4 was clicked");
+	    document.getElementById("fo").disabled = false;
+	    document.getElementById("ri").disabled = false;
+	    document.getElementById("le").disabled = false;
+	    document.getElementById("re").disabled = true;
+	    mode = "Reverse ";
+	    xhttp.open("get", "http://192.168.43.55/?dir=4&spd=-1", true);
+	    xhttp.send();
+	}
+
+	function send(){ //callback function for slider mousebuttonup event
+		//window.alert("sent");
+		var speed = document.getElementById("speed").value;
+		//window.alert("Speed= "+speed);
+		mode = "Speed ";
+		xhttp.open("get", "http://192.168.43.55/?dir=-1&spd=" + speed, true);
+		xhttp.send();
+}
+
+function mousee() {
+    document.getElementById("debug").style.backgroundColor = "#FFF5C5";
+    document.getElementById("debug").style.color = "Black";
+}
+
+function mousel() {
+    document.getElementById("debug").style.backgroundColor = "#FFFFDD";
+    document.getElementById("debug").style.color = "Gray";
+}
+
+</script>
+</head>
+<body>
+<!---------------------------------- Main HTML part for putting various elements ----------------------------------------------//-->
+<h2 style="background-color:lightgray; padding:10px"> Update robot Speed and direction </h2>
+<p style="font-family:Cambria; padding:10; font-size:90%">&nbsp Direction: &nbsp
+<button onclick="forward()" id="fo"> Forward </button>&nbsp
+<button onclick="left()" id="le"> Left </button>&nbsp
+<button onclick="right()" id="ri"> Right </button>&nbsp
+<button onclick="rev()" id="re"> Reverse </button>&nbsp </p>
+<p style="font-family:Cambria; padding:10; font-size:90%; vertical-align:text-top"> &nbsp Speed: &nbsp
+<input type="range" id="speed" min="0" max="255" step="1" value="0" onmouseup="send()" style="vertical-align:bottom" /> </p>
+
+<!--CHANGE IP TO THE IP OF THE PHONE WHEN IT IS CONNECTED TO THE ROBOT ACCESS POINT-->
+&nbsp&nbsp&nbsp&nbsp&nbsp
+<img src="http://192.168.43.1:8080/video" alt="Video stream not found" width="320" height="240" />
+
+<p id="debug" style="border:1px; border-style:dashed; padding:10; background-color:#FFFFDD; font-size:90%; font-family:Courier New; color:Gray" onmouseover="mousee()" onmouseout="mousel()">
+&nbsp<u>Debugging info:</u>
+<br />
+</p>
+</body>
+</html>
+
+
